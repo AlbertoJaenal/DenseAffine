@@ -50,10 +50,10 @@ We have used code and been inspired by https://github.com/Parskatt/dkm, https://
 ## cite
 If you find this work useful, please cite:
 ```bibtex
-@InProceedings{Sun2025learningACs,
-    author    = {Pengju Sun and Banglei Guan and Zhenbao Yu and Yang Shang and Qifeng Yu and Daniel Barath},
-    title     = {Learning Affine Correspondences by Integrating Geometric Constraints},
-    booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
-    month     = {June},
-    year      = {2025},
+@inproceedings{sun2025learning,
+  title={Learning affine correspondences by integrating geometric constraints},
+  author={Sun, Pengju and Guan, Banglei and Yu, Zhenbao and Shang, Yang and Yu, Qifeng and Barath, Daniel},
+  booktitle={IEEE Conference on Computer Vision and Pattern Recognition},
+  pages={27038--27048},
+  year={2025}
 }
