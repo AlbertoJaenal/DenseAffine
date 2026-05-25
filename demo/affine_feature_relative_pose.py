@@ -255,6 +255,7 @@ if __name__ == '__main__':
 
     # squ_list = ["00","01","02","03","04","05","06","07","08","09","10"]
     squ_list = [ "04" ]
+    do_dkm = False
     for squ in squ_list:
         print(squ)
         n = 300
@@ -287,41 +288,36 @@ if __name__ == '__main__':
             E_gt = E_gt_all[i]
             F_gt = F_gt_all[i]
 
-            DKM_5pc_errorlist = []
-            DKM_5pc_pc_list = []
             DenseAffine_2ac_errorlist = []
-
-            with open("/home/xxx/project/ECCV/DKM/kitti_0/pc_{}/out_PC{}.txt".format(squ,i), "r") as f1:
-                the_pc = f1.readlines()
-                PCs_DKM = np.array([np.array([float(i) for i in j.split(",")[:4]]) for j in the_pc])[:n]
-                DKM_pt1 = PCs_DKM[:, 0:2]
-                DKM_pt2 = PCs_DKM[:, 2:4]
-
             pt1, pt2, ACs = multicompute(path1 ,path2)
-
-
 
             pt1 = pt1[:n]
             pt2 = pt2[:n]
             ACs = ACs[:n]
 
-            tentatives_dkm = [0.5] * PCs_DKM.shape[0]
+            if do_dkm:
+                DKM_5pc_errorlist = []
+                DKM_5pc_pc_list = []
+                
+                with open("/home/xxx/project/ECCV/DKM/kitti_0/pc_{}/out_PC{}.txt".format(squ,i), "r") as f1:
+                    the_pc = f1.readlines()
+                    PCs_DKM = np.array([np.array([float(i) for i in j.split(",")[:4]]) for j in the_pc])[:n]
+                    DKM_pt1 = PCs_DKM[:, 0:2]
+                    DKM_pt2 = PCs_DKM[:, 2:4]
 
-            tentatives = [i for i in range(len(DKM_pt1))]
+                tentatives_dkm = [0.5] * PCs_DKM.shape[0]
 
-            DKM5pcE, _mask = verify_cv2_ess(DKM_pt1, DKM_pt2, tentatives, K1, K2, img1.shape[2],
-                                                          # The height of the source image
-                                                          img1.shape[3],  # The width of the source image
-                                                          img2.shape[2],  # The height of the destination image
-                                                          img2.shape[3],  # The width of the destination image
-                                            )
+                tentatives = [i for i in range(len(DKM_pt1))]
 
-            DKM_5pc_R_error, DKM_5pc_T_error = calculate_error_new(GTpose[i].reshape(3, 4), DKM5pcE)
-            DKM_5pc_errorlist.append([DKM_5pc_R_error, DKM_5pc_T_error])
+                DKM5pcE, _mask = verify_cv2_ess(DKM_pt1, DKM_pt2, tentatives, K1, K2, img1.shape[2],
+                                                              # The height of the source image
+                                                              img1.shape[3],  # The width of the source image
+                                                              img2.shape[2],  # The height of the destination image
+                                                              img2.shape[3],  # The width of the destination image
+                                                )
 
-
-
-
+                DKM_5pc_R_error, DKM_5pc_T_error = calculate_error_new(GTpose[i].reshape(3, 4), DKM5pcE)
+                DKM_5pc_errorlist.append([DKM_5pc_R_error, DKM_5pc_T_error])
 
             ACs_ours = ACs
             ours_pt1 = ACs_ours[:, 0:2]
@@ -346,18 +342,21 @@ if __name__ == '__main__':
 
             ours_R_error, ours_T_error = calculate_error_new(GTpose[i].reshape(3, 4), ours_E)
             DenseAffine_2ac_errorlist.append([ours_R_error, ours_T_error])
+
+    if do_dkm:
+        dkm_5pc_R_errorlist = [i[0] for i in DKM_5pc_errorlist]
+        dkm_5pc_T_errorlist = [i[1] for i in DKM_5pc_errorlist]
+        dkm_5pc_R_median_error = np.median(dkm_5pc_R_errorlist)
+        dkm_5pc_T_median_error = np.median(dkm_5pc_T_errorlist)
+        print("dkm_5pc_R_median_error:", dkm_5pc_R_median_error)
+        print("dkm_5pc_T_median_error:", dkm_5pc_T_median_error)
+        
     ours_R_errorlist = [i[0] for i in DenseAffine_2ac_errorlist]
     ours_T_errorlist = [i[1] for i in DenseAffine_2ac_errorlist]
-    dkm_5pc_R_errorlist = [i[0] for i in DKM_5pc_errorlist]
-    dkm_5pc_T_errorlist = [i[1] for i in DKM_5pc_errorlist]
     ours_R_median_error = np.median(ours_R_errorlist)
-    dkm_5pc_R_median_error = np.median(dkm_5pc_R_errorlist)
     ours_T_median_error = np.median(ours_T_errorlist)
-    dkm_5pc_T_median_error = np.median(dkm_5pc_T_errorlist)
     print("ours_R_median_error:", ours_R_median_error)
-    print("dkm_5pc_R_median_error:", dkm_5pc_R_median_error)
     print("ours_T_median_error:", ours_T_median_error)
-    print("dkm_5pc_T_median_error:", dkm_5pc_T_median_error)
 
 
 
